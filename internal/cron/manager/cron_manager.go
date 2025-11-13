@@ -101,18 +101,12 @@ func (jm *JobManager) StartJob(ctx context.Context, name string, interval time.D
 
 	switch wrapper.jobType {
 	case model.JobTypeCursor:
-		cursorHandler, ok := wrapper.handler.(processor.CursorHandler)
-		if !ok {
-			return errors.New("invalid handler type for cursor job")
-		}
-		wrapper.worker = worker.NewCursorWorker(cursorHandler, jm.storage, wrapper.config)
+		cursorHandler := wrapper.handler
+		wrapper.worker = worker.NewCursorWorker(cursorHandler.(processor.CursorHandler), jm.storage, wrapper.config)
 
 	case model.JobTypeBatch:
-		batchHandler, ok := wrapper.handler.(processor.BatchHandler)
-		if !ok {
-			return errors.New("invalid handler type for batch job")
-		}
-		wrapper.worker = worker.NewBatchWorker(batchHandler, jm.storage, wrapper.config)
+		batchHandler := wrapper.handler
+		wrapper.worker = worker.NewBatchWorker(batchHandler.(processor.BatchHandler), jm.storage, wrapper.config)
 
 	default:
 		return errors.New("unknown job type for")
