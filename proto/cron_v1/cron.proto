@@ -6,36 +6,23 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/Georgi-Progger/cron/pkg/cron_v1;cron_v1";
+option go_package = "github.com/Georgi-Progger/cronlib/pb/cron_v1;cron_v1";
 
 service CronV1 {
     rpc Start(StartJobRequest) returns (StartJobResponse);
     rpc Stop(StopJobRequest) returns (StopJobResponse);
-    rpc ListJobs(ListJobsRequest) returns (ListJobsResponse);
-}
-
-message ListJobsRequest {}
-
-message ListJobsResponse {
-    repeated JobInfo jobs = 1;
-}
-
-message JobInfo {
-    string name = 1;
-    JobStatus status = 2;
-    google.protobuf.Timestamp last_run = 3;
-    google.protobuf.Timestamp next_run = 4;
+    rpc GetJob(GetJobRequest) returns (GetJobResponse);
+    rpc ListJobs(google.protobuf.Empty) returns (ListJobsResponse);
 }
 
 message StartJobRequest {
     string name = 1;
-    google.protobuf.Duration interval = 2;
-    google.protobuf.Timestamp start_from = 3;
+    google.protobuf.Timestamp until = 2;    
 }
 
 message StartJobResponse {
     string name = 1;
-    bool started = 2;
+    Status status = 2;
     string error_message = 3;
 }
 
@@ -44,16 +31,31 @@ message StopJobRequest {
 }
 
 message StopJobResponse {
-    string name = 1;
-    bool stopped = 2;
-    int32 processed_count = 3;
-    google.protobuf.Timestamp last_processed_time = 4;
+    Status status = 1;
+    string error_message = 2;
 }
 
-enum JobStatus {
-    JOB_STATUS_UNKNOWN = 0;
-    JOB_STATUS_PENDING = 1;
-    JOB_STATUS_RUNNING = 2;
-    JOB_STATUS_STOPPED = 3;
-    JOB_STATUS_ERROR = 4;
+message GetJobRequest {
+    string name = 1;
+}
+
+message GetJobResponse {
+    JobInfo job = 1;
+}
+
+message ListJobsResponse {
+    repeated JobInfo jobs = 1;
+}
+
+message JobInfo {
+    string name = 1;
+    Status status = 2;
+    google.protobuf.Timestamp last_run = 3;
+    string error = 4;
+}
+
+enum Status {
+    RUNNING = 0;
+    STOPPED = 1;
+    ERROR = 2;
 }

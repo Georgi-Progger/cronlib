@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CronV1_Start_FullMethodName    = "/cron_v1.CronV1/Start"
 	CronV1_Stop_FullMethodName     = "/cron_v1.CronV1/Stop"
+	CronV1_GetJob_FullMethodName   = "/cron_v1.CronV1/GetJob"
 	CronV1_ListJobs_FullMethodName = "/cron_v1.CronV1/ListJobs"
 )
 
@@ -30,7 +32,8 @@ const (
 type CronV1Client interface {
 	Start(ctx context.Context, in *StartJobRequest, opts ...grpc.CallOption) (*StartJobResponse, error)
 	Stop(ctx context.Context, in *StopJobRequest, opts ...grpc.CallOption) (*StopJobResponse, error)
-	ListJobs(ctx context.Context, in *ListJobsRequest, opts ...grpc.CallOption) (*ListJobsResponse, error)
+	GetJob(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error)
+	ListJobs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListJobsResponse, error)
 }
 
 type cronV1Client struct {
@@ -61,7 +64,17 @@ func (c *cronV1Client) Stop(ctx context.Context, in *StopJobRequest, opts ...grp
 	return out, nil
 }
 
-func (c *cronV1Client) ListJobs(ctx context.Context, in *ListJobsRequest, opts ...grpc.CallOption) (*ListJobsResponse, error) {
+func (c *cronV1Client) GetJob(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetJobResponse)
+	err := c.cc.Invoke(ctx, CronV1_GetJob_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cronV1Client) ListJobs(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListJobsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListJobsResponse)
 	err := c.cc.Invoke(ctx, CronV1_ListJobs_FullMethodName, in, out, cOpts...)
@@ -77,7 +90,8 @@ func (c *cronV1Client) ListJobs(ctx context.Context, in *ListJobsRequest, opts .
 type CronV1Server interface {
 	Start(context.Context, *StartJobRequest) (*StartJobResponse, error)
 	Stop(context.Context, *StopJobRequest) (*StopJobResponse, error)
-	ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error)
+	GetJob(context.Context, *GetJobRequest) (*GetJobResponse, error)
+	ListJobs(context.Context, *emptypb.Empty) (*ListJobsResponse, error)
 	mustEmbedUnimplementedCronV1Server()
 }
 
@@ -94,7 +108,10 @@ func (UnimplementedCronV1Server) Start(context.Context, *StartJobRequest) (*Star
 func (UnimplementedCronV1Server) Stop(context.Context, *StopJobRequest) (*StopJobResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
-func (UnimplementedCronV1Server) ListJobs(context.Context, *ListJobsRequest) (*ListJobsResponse, error) {
+func (UnimplementedCronV1Server) GetJob(context.Context, *GetJobRequest) (*GetJobResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetJob not implemented")
+}
+func (UnimplementedCronV1Server) ListJobs(context.Context, *emptypb.Empty) (*ListJobsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListJobs not implemented")
 }
 func (UnimplementedCronV1Server) mustEmbedUnimplementedCronV1Server() {}
@@ -154,8 +171,26 @@ func _CronV1_Stop_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CronV1_GetJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetJobRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CronV1Server).GetJob(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CronV1_GetJob_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CronV1Server).GetJob(ctx, req.(*GetJobRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CronV1_ListJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListJobsRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -167,7 +202,7 @@ func _CronV1_ListJobs_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: CronV1_ListJobs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CronV1Server).ListJobs(ctx, req.(*ListJobsRequest))
+		return srv.(CronV1Server).ListJobs(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -186,6 +221,10 @@ var CronV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Stop",
 			Handler:    _CronV1_Stop_Handler,
+		},
+		{
+			MethodName: "GetJob",
+			Handler:    _CronV1_GetJob_Handler,
 		},
 		{
 			MethodName: "ListJobs",

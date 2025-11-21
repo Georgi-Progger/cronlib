@@ -1,4 +1,4 @@
-module github.com/Georgi-Progger/cron
+module github.com/Georgi-Progger/cronlib
 
 go 1.24.0
 
